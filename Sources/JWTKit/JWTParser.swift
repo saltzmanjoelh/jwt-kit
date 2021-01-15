@@ -1,11 +1,11 @@
 import class Foundation.JSONDecoder
 
-struct JWTParser {
+public struct JWTParser {
     let encodedHeader: ArraySlice<UInt8>
     let encodedPayload: ArraySlice<UInt8>
     let encodedSignature: ArraySlice<UInt8>
 
-    init<Token>(token: Token) throws
+    public init<Token>(token: Token) throws
         where Token: DataProtocol
     {
         let tokenParts = token.copyBytes().split(separator: .period)
@@ -22,14 +22,14 @@ struct JWTParser {
             .decode(JWTHeader.self, from: .init(self.encodedHeader.base64URLDecodedBytes()))
     }
 
-    func payload<Payload>(as payload: Payload.Type) throws -> Payload
+    public func payload<Payload>(as payload: Payload.Type) throws -> Payload
         where Payload: JWTPayload
     {
         try self.jsonDecoder()
             .decode(Payload.self, from: .init(self.encodedPayload.base64URLDecodedBytes()))
     }
 
-    func verify(using signer: JWTSigner) throws {
+    public func verify(using signer: JWTSigner) throws {
         guard try signer.algorithm.verify(self.signature, signs: self.message) else {
             throw JWTError.signatureVerifictionFailed
         }
